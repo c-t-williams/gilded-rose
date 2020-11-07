@@ -1,6 +1,8 @@
 import { expect } from "chai";
 import { Item, GildedRose } from "../app/gilded-rose";
 
+// Please note: I had to install nyc globally for tests to work, as it errored when using npm test, even after running NPM install.
+
 describe("Gilded Rose", function () {
   // Standard Items
   it("Standard items should decrease SellIn and Quality by 1", function () {
