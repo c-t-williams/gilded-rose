@@ -3,10 +3,6 @@ import { Item, GildedRose } from "../app/gilded-rose";
 
 describe("Gilded Rose", function () {
   // Standard Items
-  //new Item("+5 Dexterity Vest", 10, 20),
-  //new Item("Elixir of the Mongoose", 5, 7), //
-
-  // Standard Items
   it("Standard items should decrease SellIn and Quality by 1", function () {
     const gildedRose = new GildedRose([new Item("+5 Dexterity Vest", 10, 20)]);
     const items = gildedRose.updateQuality();
