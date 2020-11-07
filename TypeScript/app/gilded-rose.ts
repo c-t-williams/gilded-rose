@@ -29,52 +29,42 @@ export class GildedRose {
 
     updateQuality() {
         for (let i = 0; i < this.items.length; i++) {
-            // Getting Item Type
-            let item: Item = this.items[i];
-            const itemType: string = this.getType(item);
+            let item: Item = this.items[i]; // Adding shorthand reference
+            let multiplier: number = 1; // Quality Multiplier
+            const itemType: string = this.getType(item); // Getting Item Type
 
             // Escape hatch, ignoring Legendary Items
             if (itemType === 'Legendary') continue;
 
-            if (itemType != 'Cheese' && itemType != 'Backstage Pass') {
-                if (item.quality > 0) {
-                    if (itemType != 'Conjured') {
-                        item.quality = item.quality - 1
-                    } else {
-                        item.quality = item.quality - 2
-                    }
-                }
-            } else {
-                if (item.quality < 50) {
-                    item.quality = item.quality + 1
-                    if (itemType === 'Backstage Pass') {
-                        if (item.sellIn < 11) {
-                            item.quality = item.quality + 1
-                        }
-                        if (item.sellIn < 6) {
-                            item.quality = item.quality + 1
-                        }
-                    }
-                }
-            }
-
             // Decrease Sellby Date
             item.sellIn = item.sellIn - 1;
 
-            if (item.sellIn < 0) {
-                if (itemType != 'Cheese') {
-                    if (itemType != 'Backstage Pass') {
-                        if (itemType != 'Conjured') {
-                            item.quality = item.quality - 1
-                        } else {
-                            item.quality = item.quality - 2
-                        }
+            // Update multiplier if sellIn is less than 0
+            if (item.sellIn < 0) multiplier = 2;
+
+            // Switches are more readable and usually more performant than multiple if statements
+            switch (itemType) {
+                case 'Cheese':
+                    item.quality = item.quality + (multiplier * 1);
+
+                    break;
+                case 'Backstage Pass':
+                    if (item.sellIn < 0) {
+                        item.quality = 0;
+                    } else if (item.sellIn >= 0 && item.sellIn <= 4) {
+                        item.quality = item.quality + 3;
+                    } else if (item.sellIn >= 5 && item.sellIn <= 9) {
+                        item.quality = item.quality + 2;
                     } else {
-                        item.quality = item.quality - item.quality
+                        item.quality = item.quality + 1;
                     }
-                } else {
-                    item.quality = item.quality + 1
-                }
+
+                    break;
+                case 'Conjured':
+                    item.quality = item.quality - (multiplier * 2);
+                    break;
+                default: 
+                    item.quality = item.quality - (multiplier * 1);
             }
 
             // Ensuring Quality Boundaries
