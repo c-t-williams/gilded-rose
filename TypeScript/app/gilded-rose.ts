@@ -17,15 +17,21 @@ export class GildedRose {
         this.items = items;
     }
 
+    // items by type
+    legendary: Array<string> = ['Sulfuras, Hand of Ragnaros'];
+    cheese: Array<string> = ['Aged Brie'];
+    backstage: Array<string> = ['Backstage passes to a TAFKAL80ETC concert'];
+    conjured: Array<string> = ['Conjured Mana Cake'];
+
     getType(item = {} as Item) {
-        if (item.name === 'Sulfuras, Hand of Ragnaros') return 'Legendary';
-        if (item.name === 'Aged Brie') return 'Cheese';
-        if (item.name === 'Backstage passes to a TAFKAL80ETC concert') return 'Backstage Pass';
-        if (item.name === 'Conjured Mana Cake') return 'Conjured';
+        if (this.legendary.indexOf(item.name) >= 0) return 'Legendary';
+        if (this.cheese.indexOf(item.name) >= 0) return 'Cheese';
+        if (this.backstage.indexOf(item.name) >= 0) return 'Backstage Pass';
+        if (this.conjured.indexOf(item.name) >= 0) return 'Conjured';
 
         // If none of the above, the item must be Standard
         return 'Standard';
-    } 
+    }
 
     updateQuality() {
         for (let i = 0; i < this.items.length; i++) {
