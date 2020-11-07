@@ -22,6 +22,26 @@ describe("Gilded Rose", function () {
     expect(items[0].quality).to.equal(8);
   });
 
+  // Conjured Items
+  it("Conjured items should decrease SellIn by 1 and Quality by 2", function () {
+    const gildedRose = new GildedRose([new Item("Conjured Mana Cake", 10, 20)]);
+    const items = gildedRose.updateQuality();
+    expect(items[0].sellIn).to.equal(9);
+    expect(items[0].quality).to.equal(18);
+  });
+
+  it("Conjured items should never decrease Quality below 0", function () {
+    const gildedRose = new GildedRose([new Item("Conjured Mana Cake", 0, 0)]);
+    const items = gildedRose.updateQuality();
+    expect(items[0].quality).to.equal(0);
+  });
+
+  it("Conjured items should decrease Quality twice as fast when SellIn below 0", function () {
+    const gildedRose = new GildedRose([new Item("Conjured Mana Cake", 0, 10)]);
+    const items = gildedRose.updateQuality();
+    expect(items[0].quality).to.equal(6);
+  });
+
   // Cheese (Gromit)
   it("Cheese should decrease SellIn but increase Quality by 1", function () {
     const gildedRose = new GildedRose([new Item("Aged Brie", 10, 20)]);
