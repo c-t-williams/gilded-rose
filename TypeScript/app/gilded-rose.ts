@@ -10,72 +10,84 @@ export class Item {
     }
 }
 
-export class GildedRose {
-    items: Array<Item>;
+class ExtendedItem extends Item {
+    sellInMultiplier: number = -1;
+    qualityMultiplier: number = -1;
+    minQuality: number = 0;
+    maxQuality: number = 50;
 
-    constructor(items = [] as Array<Item>) {
-        this.items = items;
+    updateItem() {
+        this.updateSellIn();
+        this.updateQuality();
     }
 
-    // items by type
-    legendary: Array<string> = ['Sulfuras, Hand of Ragnaros'];
-    cheese: Array<string> = ['Aged Brie'];
-    backstage: Array<string> = ['Backstage passes to a TAFKAL80ETC concert'];
-    conjured: Array<string> = ['Conjured Mana Cake'];
+    updateSellIn() {
+        this.sellIn = this.sellIn + this.sellInMultiplier;
 
-    getType(item = {} as Item) {
-        if (this.legendary.indexOf(item.name) >= 0) return 'Legendary';
-        if (this.cheese.indexOf(item.name) >= 0) return 'Cheese';
-        if (this.backstage.indexOf(item.name) >= 0) return 'Backstage Pass';
-        if (this.conjured.indexOf(item.name) >= 0) return 'Conjured';
+        if (this.sellIn < 0) this.qualityMultiplier = this.qualityMultiplier * 2;
+    }
 
-        // If none of the above, the item must be Standard
-        return 'Standard';
+    updateQuality() {
+        this.quality = this.quality + this.qualityMultiplier;
+
+        if (this.quality < this.minQuality) this.quality = this.minQuality;
+        if (this.quality > this.maxQuality) this.quality = this.maxQuality;
+    }
+}
+
+class Legendary extends ExtendedItem {
+    sellInMultiplier: number = 0;
+    qualityMultiplier: number = 0;
+
+    updateSellIn() { /* Legendary Items do not change */ }
+    updateQuality() { /* Legendary Items do not change */ }
+}
+
+class Conjured extends ExtendedItem {
+    qualityMultiplier: number = -2;
+}
+
+class Cheese extends ExtendedItem {
+    qualityMultiplier: number = 1;
+}
+
+class Backstage extends ExtendedItem {
+    updateQuality() {
+        if (this.sellIn < 0) {
+            this.quality = 0;
+        } else if (this.sellIn >= 0 && this.sellIn <= 4) {
+            this.quality = this.quality + 3;
+        } else if (this.sellIn >= 5 && this.sellIn <= 9) {
+            this.quality = this.quality + 2;
+        } else {
+            this.quality = this.quality + 1;
+        }
+    }
+}
+
+export class GildedRose {
+    items: Array<ExtendedItem>;
+
+    constructor(items = [] as Array<Item>) {
+        this.items = items.map(item => {
+            switch (item.name) {
+                case "Sulfuras, Hand of Ragnaros":
+                    return new Legendary(item.name, item.sellIn, item.quality);
+                case "Conjured Mana Cake": 
+                    return new Conjured(item.name, item.sellIn, item.quality);
+                case "Aged Brie": 
+                    return new Cheese(item.name, item.sellIn, item.quality);
+                case "Backstage passes to a TAFKAL80ETC concert":
+                    return new Backstage(item.name, item.sellIn, item.quality);
+                default:
+                    return new ExtendedItem(item.name, item.sellIn, item.quality);
+            }
+        })
     }
 
     updateQuality() {
         for (let i = 0; i < this.items.length; i++) {
-            let item: Item = this.items[i]; // Adding shorthand reference
-            let multiplier: number = 1; // Quality Multiplier
-            const itemType: string = this.getType(item); // Getting Item Type
-
-            // Escape hatch, ignoring Legendary Items
-            if (itemType === 'Legendary') continue;
-
-            // Decrease Sellby Date
-            item.sellIn = item.sellIn - 1;
-
-            // Update multiplier if sellIn is less than 0
-            if (item.sellIn < 0) multiplier = 2;
-
-            // Switches are more readable and usually more performant than multiple if statements
-            switch (itemType) {
-                case 'Cheese':
-                    item.quality = item.quality + (multiplier * 1);
-
-                    break;
-                case 'Backstage Pass':
-                    if (item.sellIn < 0) {
-                        item.quality = 0;
-                    } else if (item.sellIn >= 0 && item.sellIn <= 4) {
-                        item.quality = item.quality + 3;
-                    } else if (item.sellIn >= 5 && item.sellIn <= 9) {
-                        item.quality = item.quality + 2;
-                    } else {
-                        item.quality = item.quality + 1;
-                    }
-
-                    break;
-                case 'Conjured':
-                    item.quality = item.quality - (multiplier * 2);
-                    break;
-                default: 
-                    item.quality = item.quality - (multiplier * 1);
-            }
-
-            // Ensuring Quality Boundaries
-            if (item.quality > 50) item.quality = 50;
-            if (item.quality < 0) item.quality = 0;
+            this.items[i].updateItem();
         }
 
         return this.items;
